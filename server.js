@@ -12,8 +12,8 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { createRequire } from 'module';
 import OpenAI from "openai";
 
-const require = createRequire(import.meta.url);
-const serviceAccountkey = require('./crixblog-55694-firebase-adminsdk-fbsvc-346ca2bad8.json');
+// const require = createRequire(import.meta.url);
+// const serviceAccountkey = require('./crixblog-55694-firebase-adminsdk-fbsvc-346ca2bad8.json');
 
 import User from "./Schema/User.js";
 import Blog from "./Schema/Blog.js";
