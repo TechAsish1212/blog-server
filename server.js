@@ -12,8 +12,8 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { createRequire } from 'module';
 import OpenAI from "openai";
 
-// const require = createRequire(import.meta.url);
-// const serviceAccountkey = require('./crixblog-55694-firebase-adminsdk-fbsvc-346ca2bad8.json');
+const require = createRequire(import.meta.url);
+const serviceAccountkey = require('./crixblog-55694-firebase-adminsdk-fbsvc-346ca2bad8.json');
 
 import User from "./Schema/User.js";
 import Blog from "./Schema/Blog.js";
@@ -26,16 +26,19 @@ import { totalmem } from "os";
 const app = express();
 const PORT = 3001;
 
+
+
 // admin.initializeApp({
-//     credential: admin.credential.cert(serviceAccountkey)
+//   credential: admin.credential.cert({
+//     projectId: process.env.FIREBASE_PROJECT_ID,
+//     clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+//     privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+//   }),
 // });
 
+// 🔥 Initialize
 admin.initializeApp({
-  credential: admin.credential.cert({
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-  }),
+  credential: admin.credential.cert(serviceAccountkey),
 });
 
 const firebaseAuth = getAuth();
