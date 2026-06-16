@@ -10,10 +10,10 @@ import { getAuth } from 'firebase-admin/auth';
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { createRequire } from 'module';
-import OpenAI from "openai";
+// import OpenAI from "openai";
 
 const require = createRequire(import.meta.url);
-const serviceAccountkey = require('./crixblog-55694-firebase-adminsdk-fbsvc-346ca2bad8.json');
+// const serviceAccountkey = require('./crixblog-55694-firebase-adminsdk-fbsvc-263928247b.json');
 
 import User from "./Schema/User.js";
 import Blog from "./Schema/Blog.js";
@@ -27,18 +27,13 @@ const app = express();
 const PORT = 3001;
 
 
-
-// admin.initializeApp({
-//   credential: admin.credential.cert({
-//     projectId: process.env.FIREBASE_PROJECT_ID,
-//     clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-//     privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-//   }),
-// });
-
 // 🔥 Initialize
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccountkey),
+  credential: admin.credential.cert({
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n")
+  }),
 });
 
 const firebaseAuth = getAuth();
@@ -49,6 +44,7 @@ let passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/; // regex for pass
 
 //middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors())
 
 // database connection
@@ -56,12 +52,6 @@ mongoose.connect(process.env.DB_LOCATION, { dbName: 'blogweb' })
     .then(() => console.log("DataBase is connected."))
     .catch((err) => console.log("Database connection failed", err))
 
-// Setting s3 bucket 
-// const s3 = new aws.S3({
-//     region: 'eu-north-1',
-//     accessKeyId: process.env.AWS_ACCESS_KEY,
-//     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-// })
 
 // aws 
 const s3 = new S3Client({
@@ -86,11 +76,6 @@ const s3 = new S3Client({
 //     })
 // }
 
-
-const openai = new OpenAI({
-    apiKey: process.env.OPENROUTER_API_KEY,
-    baseURL: "https://openrouter.ai/api/v1",  // ✅ required for OpenRouter keys
-});
   
 const generateUploadURL = async () => {
     const date = new Date();
@@ -163,7 +148,7 @@ app.post("/signup", (req, res) => {
     const { fullname, email, password } = req.body;
 
     // validating data from frontend
-    if (fullname.length < 3) {
+    if (!fullname||fullname.length < 3) {
         return res.status(403).json({ error: "Fullname must be at least 3 letters long" });
     }
 
@@ -501,7 +486,6 @@ app.post('/create-blog', verifyJWT, (req, res) => {
     if (!title.length) {
         return res.status(403).json({ error: "You must providez a title." });
     }
-
     if (!draft) {
         if (!des.length || des.length > 200) {
             return res.status(403).json({ error: "You must write the blog description under 200 chaacters." });
